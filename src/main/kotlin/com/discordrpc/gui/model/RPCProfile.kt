@@ -1,6 +1,5 @@
 package com.discordrpc.gui.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
