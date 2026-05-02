@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="discord-rpc-gui-desktop-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="discord-rpc-gui-desktop-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="discord-rpc-gui.desktopMain" />
+    </root>
+  </artifact>
+</component>
