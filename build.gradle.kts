@@ -46,7 +46,9 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(
-                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Exe,
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi
             )
             packageName = "DiscordRPCGUI"
             packageVersion = "1.0.0"
