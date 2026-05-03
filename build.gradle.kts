@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform") version "2.3.20"
+    kotlin("plugin.serialization") version "2.3.20"
     id("org.jetbrains.compose") version "1.10.3"
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.20"
 }
@@ -20,8 +21,14 @@ kotlin {
                 implementation(compose.material3)
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
-                implementation("com.github.caoimhebyrne:KDiscordIPC:0.2.6")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
                 implementation("org.slf4j:slf4j-simple:2.0.12")
+
+                // Ktor WebSocket client for Discord Gateway connection
+                val ktorVersion = "3.1.3"
+                implementation("io.ktor:ktor-client-core:$ktorVersion")
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
             }
         }
     }
