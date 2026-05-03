@@ -28,8 +28,25 @@ class MainViewModel(
     // Active RPC service — switches based on mode
     private var rpcService: DiscordRpcService = LocalRpcServiceImpl()
 
+    init {
+        val globalSettings = settingsRepository.loadGlobalSettings()
+        _state.value = AppState(
+            activeThemeId = globalSettings.themeId,
+            customThemeHex = globalSettings.customThemeHex
+        )
+    }
+
     fun updateField(updater: (AppState) -> AppState) {
         _state.update(updater)
+    }
+
+    fun changeTheme(themeId: String, customHex: String = "") {
+        _state.update { it.copy(activeThemeId = themeId, customThemeHex = customHex) }
+        coroutineScope.launch(Dispatchers.IO) {
+            settingsRepository.saveGlobalSettings(
+                com.discordrpc.gui.settings.AppGlobalSettings(themeId = themeId, customThemeHex = customHex)
+            )
+        }
     }
 
     // ── Mode Switching ──

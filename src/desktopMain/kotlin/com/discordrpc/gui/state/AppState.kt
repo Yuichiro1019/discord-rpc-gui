@@ -12,6 +12,10 @@ data class AppState(
     val token: String = "",                // Discord user token (Gateway mode only)
     val statusMessage: String = "Disconnected",
 
+    // Theming
+    val activeThemeId: String = "PlushAmber",
+    val customThemeHex: String = "",
+
     // Process selection
     val runningProcesses: List<ProcessInfo> = emptyList(),
     val selectedProcess: ProcessInfo? = null,

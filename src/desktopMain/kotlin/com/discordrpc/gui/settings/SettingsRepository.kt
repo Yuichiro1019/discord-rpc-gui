@@ -84,4 +84,29 @@ class SettingsRepository {
             t.printStackTrace()
         }
     }
+
+    private val globalSettingsFile: File by lazy {
+        File(settingsFile.parentFile, "global-settings.json")
+    }
+
+    fun loadGlobalSettings(): AppGlobalSettings {
+        return try {
+            if (!globalSettingsFile.exists()) return AppGlobalSettings()
+            val content = globalSettingsFile.readText()
+            if (content.isBlank()) return AppGlobalSettings()
+            json.decodeFromString<AppGlobalSettings>(content)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+            AppGlobalSettings()
+        }
+    }
+
+    fun saveGlobalSettings(settings: AppGlobalSettings) {
+        try {
+            val content = json.encodeToString(settings)
+            globalSettingsFile.writeText(content)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
+    }
 }
