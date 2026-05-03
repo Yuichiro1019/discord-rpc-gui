@@ -17,5 +17,18 @@ data class AppRpcSettings(
     val largeImageKey: String = "",
     val largeImageText: String = "",
     val smallImageKey: String = "",
-    val smallImageText: String = ""
+    val smallImageText: String = "",
+    val startTimestamp: String = "",
+    val endTimestamp: String = "",
+    val matchSecret: String = "",
+    val joinSecret: String = "",
+    val button1Label: String = "",
+    val button1Url: String = "",
+    val button2Label: String = "",
+    val button2Url: String = "",
+    val activityType: Int = 0,
+    // Toggle states — so we remember what the user had toggled on/off
+    val timestampsEnabled: Boolean = false,
+    val partySecretsEnabled: Boolean = false,
+    val buttonsEnabled: Boolean = false
 )

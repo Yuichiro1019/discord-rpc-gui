@@ -7,21 +7,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.unit.DpSize
 import com.discordrpc.gui.state.MainViewModel
 import com.discordrpc.gui.ui.AppTheme
 import com.discordrpc.gui.ui.MainScreen
 
 fun main() = application {
-    val viewModel = remember { MainViewModel() }
-
     Window(
-        onCloseRequest = {
-            viewModel.disconnect()
-            exitApplication()
-        },
-        title = "Discord RPC",
-        state = WindowState(width = 720.dp, height = 800.dp)
+        onCloseRequest = ::exitApplication,
+        title = "Discord RPC GUI",
+        state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),
+        transparent = true,
+        undecorated = true
     ) {
+        window.minimumSize = java.awt.Dimension(1000, 700)
+        
+        val viewModel = remember { MainViewModel() }
         val state by viewModel.state.collectAsState()
         
         val colors = when (state.activeThemeId) {
@@ -43,7 +45,7 @@ fun main() = application {
         }
 
         AppTheme(colors = colors) {
-            MainScreen(viewModel)
+            MainScreen(viewModel, onClose = ::exitApplication)
         }
     }
 }

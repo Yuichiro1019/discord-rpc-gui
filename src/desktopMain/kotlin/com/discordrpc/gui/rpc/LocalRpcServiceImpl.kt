@@ -236,6 +236,24 @@ class LocalRpcServiceImpl : DiscordRpcService {
                     if (state.smallImageText.isNotBlank()) put("small_text", state.smallImageText)
                 })
             }
+
+            if (state.buttonsEnabled) {
+                val btns = buildJsonArray {
+                    if (state.button1Label.isNotBlank() && state.button1Url.isNotBlank()) {
+                        add(buildJsonObject {
+                            put("label", state.button1Label)
+                            put("url", state.button1Url)
+                        })
+                    }
+                    if (state.button2Label.isNotBlank() && state.button2Url.isNotBlank()) {
+                        add(buildJsonObject {
+                            put("label", state.button2Label)
+                            put("url", state.button2Url)
+                        })
+                    }
+                }
+                if (btns.size > 0) put("buttons", btns)
+            }
         }
 
         val payload = buildJsonObject {

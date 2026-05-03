@@ -155,6 +155,12 @@ class MainViewModel(
         }
     }
 
+    /**
+     * When user clicks a process:
+     * - Check JSON DB for saved config
+     * - If exists: load all fields, set isEditingSettings=false (read-only view)
+     * - If not: blank slate, set isNewProcess=true, isEditingSettings=true (editable)
+     */
     fun selectProcess(process: ProcessInfo) {
         coroutineScope.launch {
             val saved = withContext(Dispatchers.IO) {
@@ -162,6 +168,7 @@ class MainViewModel(
             }
 
             if (saved != null) {
+                // Existing config — load read-only
                 _state.update {
                     it.copy(
                         selectedProcess = process,
@@ -169,15 +176,28 @@ class MainViewModel(
                         isNewProcess = false,
                         isEditingSettings = false,
                         activityName = saved.displayName.ifBlank { process.displayName },
+                        activityType = saved.activityType,
                         details = saved.details,
                         state = saved.state,
                         largeImageKey = saved.largeImageKey,
                         largeImageText = saved.largeImageText,
                         smallImageKey = saved.smallImageKey,
-                        smallImageText = saved.smallImageText
+                        smallImageText = saved.smallImageText,
+                        startTimestampStr = saved.startTimestamp,
+                        endTimestampStr = saved.endTimestamp,
+                        matchSecret = saved.matchSecret,
+                        joinSecret = saved.joinSecret,
+                        button1Label = saved.button1Label,
+                        button1Url = saved.button1Url,
+                        button2Label = saved.button2Label,
+                        button2Url = saved.button2Url,
+                        timestampsEnabled = saved.timestampsEnabled,
+                        partySecretsEnabled = saved.partySecretsEnabled,
+                        buttonsEnabled = saved.buttonsEnabled
                     )
                 }
             } else {
+                // New process — editable blank slate
                 _state.update {
                     it.copy(
                         selectedProcess = process,
@@ -185,12 +205,24 @@ class MainViewModel(
                         isNewProcess = true,
                         isEditingSettings = true,
                         activityName = process.displayName,
+                        activityType = 0,
                         details = "",
                         state = "",
                         largeImageKey = "",
                         largeImageText = "",
                         smallImageKey = "",
-                        smallImageText = ""
+                        smallImageText = "",
+                        startTimestampStr = "",
+                        endTimestampStr = "",
+                        matchSecret = "",
+                        joinSecret = "",
+                        button1Label = "",
+                        button1Url = "",
+                        button2Label = "",
+                        button2Url = "",
+                        timestampsEnabled = false,
+                        partySecretsEnabled = false,
+                        buttonsEnabled = false
                     )
                 }
             }
@@ -212,7 +244,41 @@ class MainViewModel(
     }
 
     fun toggleEditSettings() {
-        _state.update { it.copy(isEditingSettings = !it.isEditingSettings) }
+        val current = _state.value
+        if (current.isEditingSettings) {
+            // Cancelling edit — revert to saved values
+            val saved = current.savedSettings
+            if (saved != null) {
+                _state.update {
+                    it.copy(
+                        isEditingSettings = false,
+                        activityName = saved.displayName.ifBlank { current.selectedProcess?.displayName ?: "" },
+                        activityType = saved.activityType,
+                        details = saved.details,
+                        state = saved.state,
+                        largeImageKey = saved.largeImageKey,
+                        largeImageText = saved.largeImageText,
+                        smallImageKey = saved.smallImageKey,
+                        smallImageText = saved.smallImageText,
+                        startTimestampStr = saved.startTimestamp,
+                        endTimestampStr = saved.endTimestamp,
+                        matchSecret = saved.matchSecret,
+                        joinSecret = saved.joinSecret,
+                        button1Label = saved.button1Label,
+                        button1Url = saved.button1Url,
+                        button2Label = saved.button2Label,
+                        button2Url = saved.button2Url,
+                        timestampsEnabled = saved.timestampsEnabled,
+                        partySecretsEnabled = saved.partySecretsEnabled,
+                        buttonsEnabled = saved.buttonsEnabled
+                    )
+                }
+            } else {
+                _state.update { it.copy(isEditingSettings = false) }
+            }
+        } else {
+            _state.update { it.copy(isEditingSettings = true) }
+        }
     }
 
     fun saveCurrentSettings() {
@@ -222,12 +288,24 @@ class MainViewModel(
         val settings = AppRpcSettings(
             processName = process.name,
             displayName = currentState.activityName,
+            activityType = currentState.activityType,
             details = currentState.details,
             state = currentState.state,
             largeImageKey = currentState.largeImageKey,
             largeImageText = currentState.largeImageText,
             smallImageKey = currentState.smallImageKey,
-            smallImageText = currentState.smallImageText
+            smallImageText = currentState.smallImageText,
+            startTimestamp = currentState.startTimestampStr,
+            endTimestamp = currentState.endTimestampStr,
+            matchSecret = currentState.matchSecret,
+            joinSecret = currentState.joinSecret,
+            button1Label = currentState.button1Label,
+            button1Url = currentState.button1Url,
+            button2Label = currentState.button2Label,
+            button2Url = currentState.button2Url,
+            timestampsEnabled = currentState.timestampsEnabled,
+            partySecretsEnabled = currentState.partySecretsEnabled,
+            buttonsEnabled = currentState.buttonsEnabled
         )
 
         coroutineScope.launch {

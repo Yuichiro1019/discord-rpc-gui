@@ -42,7 +42,8 @@ data class ThemeColors(
 )
 
 object ThemeEngine {
-    // ── Built-in Presets ──
+
+    // ── Handcrafted Presets (from Stitch V3 design) ──
 
     val PlushAmber = ThemeColors(
         background = Color(0xFF161311),
@@ -57,10 +58,10 @@ object ThemeEngine {
         onPrimary = Color(0xFF472A00),
         primaryContainer = Color(0xFFF59E0B),
         onPrimaryContainer = Color(0xFF613B00),
-        secondary = Color(0xFFFFB693),
-        secondaryContainer = Color(0xFF76330D),
-        tertiary = Color(0xFFFFBEA1),
-        tertiaryContainer = Color(0xFFE9A07E),
+        secondary = Color(0xFF5BA8F5),       // Complementary: Cool blue to contrast amber
+        secondaryContainer = Color(0xFF1A3A5C),
+        tertiary = Color(0xFFFF8A80),         // Analogous: Coral/rose warmth
+        tertiaryContainer = Color(0xFF5C2020),
         textPrimary = Color(0xFFE9E1DD),
         textSecondary = Color(0xFFD8C3AD),
         textMuted = Color(0xFFA08E7A)
@@ -79,32 +80,96 @@ object ThemeEngine {
         onPrimary = Color(0xFF0A0012),
         primaryContainer = Color(0xFF7C3AED),
         onPrimaryContainer = Color(0xFFEDE9FE),
-        secondary = Color(0xFF71717A),
-        secondaryContainer = Color(0xFF27272A),
-        tertiary = Color(0xFF34D399),
-        tertiaryContainer = Color(0xFF065F46),
+        secondary = Color(0xFF34D399),         // Complementary: Emerald green
+        secondaryContainer = Color(0xFF065F46),
+        tertiary = Color(0xFFF472B6),          // Analogous: Pink
+        tertiaryContainer = Color(0xFF5C1A3A),
         textPrimary = Color(0xFFFAFAFA),
         textSecondary = Color(0xFFA1A1AA),
         textMuted = Color(0xFF71717A)
     )
 
-    val DiscordBlurple = generateTheme(Color(0xFF5865F2))
-    val NeonCyber = generateTheme(Color(0xFF00E5FF), isCyber = true)
-    val CrimsonForge = generateTheme(Color(0xFFDC2626))
+    val DiscordBlurple = ThemeColors(
+        background = Color(0xFF0C0C14),
+        surfaceContainerLowest = Color(0xFF08080F),
+        surfaceContainerLow = Color(0xFF101018),
+        surfaceContainer = Color(0xFF14141E),
+        surfaceContainerHigh = Color(0xFF1A1A26),
+        surfaceContainerHighest = Color(0xFF22222E),
+        outline = Color(0xFF4A4A6A),
+        outlineVariant = Color(0xFF2A2A3E),
+        primary = Color(0xFF5865F2),
+        onPrimary = Color(0xFFFFFFFF),
+        primaryContainer = Color(0xFF3B44B0),
+        onPrimaryContainer = Color(0xFFCDD0FF),
+        secondary = Color(0xFFF2A858),         // Complementary: Warm orange
+        secondaryContainer = Color(0xFF5C3A10),
+        tertiary = Color(0xFF58F2C8),          // Analogous: Teal
+        tertiaryContainer = Color(0xFF105C44),
+        textPrimary = Color(0xFFE8E8F0),
+        textSecondary = Color(0xFFA0A0B8),
+        textMuted = Color(0xFF686880)
+    )
 
-    // ── Dynamic Generation ──
+    val NeonCyber = ThemeColors(
+        background = Color(0xFF050A0C),
+        surfaceContainerLowest = Color(0xFF030608),
+        surfaceContainerLow = Color(0xFF0A0F12),
+        surfaceContainer = Color(0xFF0E1418),
+        surfaceContainerHigh = Color(0xFF141C22),
+        surfaceContainerHighest = Color(0xFF1A242C),
+        outline = Color(0xFF3A5A6A),
+        outlineVariant = Color(0xFF1A2A34),
+        primary = Color(0xFF00E5FF),
+        onPrimary = Color(0xFF001A1F),
+        primaryContainer = Color(0xFF00889A),
+        onPrimaryContainer = Color(0xFFB0F4FF),
+        secondary = Color(0xFFFF6090),         // Complementary: Hot pink
+        secondaryContainer = Color(0xFF5C1A2A),
+        tertiary = Color(0xFFB0FF60),          // Analogous: Lime green
+        tertiaryContainer = Color(0xFF2A5C10),
+        textPrimary = Color(0xFFE0F4F8),
+        textSecondary = Color(0xFF90C0D0),
+        textMuted = Color(0xFF507080)
+    )
+
+    val CrimsonForge = ThemeColors(
+        background = Color(0xFF120808),
+        surfaceContainerLowest = Color(0xFF0E0505),
+        surfaceContainerLow = Color(0xFF180C0C),
+        surfaceContainer = Color(0xFF1E1010),
+        surfaceContainerHigh = Color(0xFF261616),
+        surfaceContainerHighest = Color(0xFF301E1E),
+        outline = Color(0xFF7A4A4A),
+        outlineVariant = Color(0xFF442A2A),
+        primary = Color(0xFFDC2626),
+        onPrimary = Color(0xFFFFFFFF),
+        primaryContainer = Color(0xFF991B1B),
+        onPrimaryContainer = Color(0xFFFFDADA),
+        secondary = Color(0xFF26DCC8),         // Complementary: Teal
+        secondaryContainer = Color(0xFF105C52),
+        tertiary = Color(0xFFDC8C26),          // Analogous: Orange/gold
+        tertiaryContainer = Color(0xFF5C3A10),
+        textPrimary = Color(0xFFF0E0E0),
+        textSecondary = Color(0xFFC0A0A0),
+        textMuted = Color(0xFF806060)
+    )
+
+    // ── Dynamic Generation (for Custom Hex) ──
 
     fun generateTheme(seed: Color, isCyber: Boolean = false): ThemeColors {
         val (h, s, l) = rgbToHsl(seed.red, seed.green, seed.blue)
         
-        // Backgrounds: Tinted very dark with the seed hue. 
-        // If cyber, we might use darker pure blacks.
         val bgL = if (isCyber) 0.02f else 0.05f
         val bgS = min(s, 0.15f)
 
+        // Split-Complementary Color Theory
+        val hComp = (h + 180f) % 360f    // Opposite on color wheel
+        val hAnalog = (h + 45f) % 360f   // 45° shift for analogous warmth
+
         return ThemeColors(
             background = hslToColor(h, bgS, bgL),
-            surfaceContainerLowest = hslToColor(h, bgS, bgL - 0.02f),
+            surfaceContainerLowest = hslToColor(h, bgS, max(0.01f, bgL - 0.02f)),
             surfaceContainerLow = hslToColor(h, bgS, bgL + 0.02f),
             surfaceContainer = hslToColor(h, bgS, bgL + 0.04f),
             surfaceContainerHigh = hslToColor(h, bgS, bgL + 0.07f),
@@ -114,21 +179,21 @@ object ThemeEngine {
             outlineVariant = hslToColor(h, min(s, 0.2f), 0.2f),
 
             primary = seed,
-            onPrimary = hslToColor(h, s, 0.1f),
+            onPrimary = if (l > 0.5f) hslToColor(h, s, 0.1f) else Color.White,
             primaryContainer = hslToColor(h, s, max(0.1f, l - 0.2f)),
             onPrimaryContainer = hslToColor(h, s, min(0.9f, l + 0.3f)),
 
-            // Secondary: Shift hue by 30 degrees, slightly desaturated
-            secondary = hslToColor((h + 30f) % 360f, s * 0.8f, l),
-            secondaryContainer = hslToColor((h + 30f) % 360f, s * 0.8f, max(0.1f, l - 0.3f)),
+            // Secondary: Complementary hue (180° shift) — max contrast pop
+            secondary = hslToColor(hComp, min(s * 0.9f, 0.8f), min(l + 0.1f, 0.7f)),
+            secondaryContainer = hslToColor(hComp, min(s * 0.7f, 0.6f), 0.15f),
 
-            // Tertiary: Shift hue backwards by 30 degrees
-            tertiary = hslToColor((h + 330f) % 360f, s * 0.8f, l),
-            tertiaryContainer = hslToColor((h + 330f) % 360f, s * 0.8f, max(0.1f, l - 0.3f)),
+            // Tertiary: Analogous hue (45° shift) — related but distinct
+            tertiary = hslToColor(hAnalog, min(s * 0.85f, 0.8f), min(l + 0.1f, 0.7f)),
+            tertiaryContainer = hslToColor(hAnalog, min(s * 0.6f, 0.5f), 0.15f),
 
-            textPrimary = hslToColor(h, min(s, 0.2f), 0.95f),
-            textSecondary = hslToColor(h, min(s, 0.2f), 0.75f),
-            textMuted = hslToColor(h, min(s, 0.15f), 0.55f)
+            textPrimary = hslToColor(h, min(s, 0.15f), 0.93f),
+            textSecondary = hslToColor(h, min(s, 0.15f), 0.72f),
+            textMuted = hslToColor(h, min(s, 0.1f), 0.5f)
         )
     }
 
@@ -154,15 +219,17 @@ object ThemeEngine {
     }
 
     private fun hslToColor(h: Float, s: Float, l: Float): Color {
+        val clampedL = l.coerceIn(0f, 1f)
+        val clampedS = s.coerceIn(0f, 1f)
         val hue = h % 360f
-        val q = if (l < 0.5f) l * (1f + s) else l + s - l * s
-        val p = 2f * l - q
+        val q = if (clampedL < 0.5f) clampedL * (1f + clampedS) else clampedL + clampedS - clampedL * clampedS
+        val p = 2f * clampedL - q
 
         val r = hueToRgb(p, q, hue / 360f + 1f / 3f)
         val g = hueToRgb(p, q, hue / 360f)
         val b = hueToRgb(p, q, hue / 360f - 1f / 3f)
 
-        return Color(r, g, b, 1f)
+        return Color(r.coerceIn(0f, 1f), g.coerceIn(0f, 1f), b.coerceIn(0f, 1f), 1f)
     }
 
     private fun hueToRgb(p: Float, q: Float, t: Float): Float {

@@ -25,6 +25,8 @@ import com.discordrpc.gui.state.AppState
 import com.discordrpc.gui.state.MainViewModel
 import java.io.File
 import javax.imageio.ImageIO
+import androidx.compose.ui.window.WindowScope
+import androidx.compose.foundation.window.WindowDraggableArea
 
 // ── Plush Modern Components ──
 
@@ -87,63 +89,78 @@ fun SectionHeader(icon: String, title: String) {
 // ── Main Screen Container ──
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun WindowScope.MainScreen(viewModel: MainViewModel, onClose: () -> Unit) {
     val state by viewModel.state.collectAsState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppTheme.colors.surfaceContainerLowest) // As seen in V3
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, AppTheme.colors.outlineVariant, RoundedCornerShape(16.dp))
+            .background(AppTheme.colors.surfaceContainerLowest.copy(alpha = 0.9f))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // ── Header ──
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(AppTheme.colors.background)
-                    .border(1.dp, AppTheme.colors.outlineVariant, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                    .padding(horizontal = 32.dp, vertical = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            WindowDraggableArea {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(AppTheme.colors.secondaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("🎮", fontSize = 28.sp)
-                    }
-                    Column {
-                        Text(
-                            "Rich Presence",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AppTheme.colors.textPrimary
-                        )
-                        Text(
-                            "VIBE UTILITY",
-                            fontSize = 13.sp,
-                            color = AppTheme.colors.secondary,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 0.5.sp
-                        )
-                    }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(AppTheme.colors.background.copy(alpha = 0.95f))
+                        .border(1.dp, AppTheme.colors.outlineVariant, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 24.dp, bottomEnd = 24.dp))
+                        .padding(horizontal = 32.dp, vertical = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ThemeSwitcher(state, viewModel)
-                    StatusPill(state)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(AppTheme.colors.secondaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("🎮", fontSize = 28.sp)
+                        }
+                        Column {
+                            Text(
+                                "Rich Presence",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AppTheme.colors.textPrimary
+                            )
+                            Text(
+                                "VIBE UTILITY",
+                                fontSize = 13.sp,
+                                color = AppTheme.colors.secondary,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ThemeSwitcher(state, viewModel)
+                        StatusPill(state)
+                        
+                        // Custom Window Close Button
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(AppTheme.colors.errorDim.copy(alpha = 0.5f))
+                                .clickable { onClose() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("✕", color = AppTheme.colors.error, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
-
             // ── Layout ──
             Row(
                 modifier = Modifier
@@ -299,33 +316,30 @@ fun PlushButton(
     textColor: Color = AppTheme.colors.onPrimaryContainer,
     borderColor: Color = AppTheme.colors.primary
 ) {
-    val finalBgColor = if (enabled) bgColor else AppTheme.colors.surfaceContainerLow
-    val finalTextColor = if (enabled) textColor else AppTheme.colors.textMuted
-
     Button(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(999.dp), // fully pill shaped
-        contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = bgColor,
+            contentColor = textColor,
+            disabledContainerColor = AppTheme.colors.surfaceContainerLow,
+            disabledContentColor = AppTheme.colors.textMuted
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            if (enabled) borderColor else AppTheme.colors.outlineVariant
+        ),
         modifier = modifier
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(finalBgColor)
-                .border(1.dp, if (enabled) borderColor else AppTheme.colors.outlineVariant, RoundedCornerShape(999.dp))
-                .padding(horizontal = 24.dp, vertical = 14.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text, 
-                fontSize = 14.sp, 
-                fontWeight = FontWeight.Bold, 
-                color = finalTextColor,
-                letterSpacing = 0.5.sp
-            )
-        }
+        Text(
+            text = text, 
+            fontSize = 14.sp, 
+            fontWeight = FontWeight.Bold, 
+            letterSpacing = 0.5.sp,
+            maxLines = 1
+        )
     }
 }
 

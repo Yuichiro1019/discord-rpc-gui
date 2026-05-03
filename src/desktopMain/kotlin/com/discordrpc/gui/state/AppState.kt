@@ -42,7 +42,16 @@ data class AppState(
     val partyMaxStr: String = "",
     val matchSecret: String = "",
     val joinSecret: String = "",
-    val spectateSecret: String = ""
+    val spectateSecret: String = "",
+    val button1Label: String = "",
+    val button1Url: String = "",
+    val button2Label: String = "",
+    val button2Url: String = "",
+
+    // Advanced section toggle states
+    val timestampsEnabled: Boolean = false,
+    val partySecretsEnabled: Boolean = false,
+    val buttonsEnabled: Boolean = false
 ) {
     val startTimestamp: Long? get() = startTimestampStr.toLongOrNull()
     val endTimestamp: Long? get() = endTimestampStr.toLongOrNull()
@@ -57,6 +66,34 @@ data class AppState(
                 it.name.contains(processSearchQuery, ignoreCase = true) ||
                 (it.desktopName?.contains(processSearchQuery, ignoreCase = true) == true)
             }
+        }
+
+    /**
+     * Live comparison: returns true if any editable field differs from savedSettings.
+     * Used to decide whether to show the "Save" button.
+     */
+    val hasUnsavedChanges: Boolean
+        get() {
+            val saved = savedSettings ?: return true // new process = always unsaved
+            return activityName != (saved.displayName.ifBlank { selectedProcess?.displayName ?: "" }) ||
+                    activityType != saved.activityType ||
+                    details != saved.details ||
+                    state != saved.state ||
+                    largeImageKey != saved.largeImageKey ||
+                    largeImageText != saved.largeImageText ||
+                    smallImageKey != saved.smallImageKey ||
+                    smallImageText != saved.smallImageText ||
+                    startTimestampStr != saved.startTimestamp ||
+                    endTimestampStr != saved.endTimestamp ||
+                    matchSecret != saved.matchSecret ||
+                    joinSecret != saved.joinSecret ||
+                    button1Label != saved.button1Label ||
+                    button1Url != saved.button1Url ||
+                    button2Label != saved.button2Label ||
+                    button2Url != saved.button2Url ||
+                    timestampsEnabled != saved.timestampsEnabled ||
+                    partySecretsEnabled != saved.partySecretsEnabled ||
+                    buttonsEnabled != saved.buttonsEnabled
         }
 
     companion object {

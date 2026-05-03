@@ -47,13 +47,32 @@ class GatewayRpcServiceImpl : DiscordRpcService {
             state = state.state.ifBlank { null },
             timestamps = buildTimestamps(state),
             assets = buildAssets(state),
-            applicationId = state.applicationId.ifBlank { null }
+            applicationId = state.applicationId.ifBlank { null },
+            buttons = buildButtons(state),
+            metadata = buildMetadata(state)
         )
 
         gw.sendPresence(activity)
     }
 
+    private fun buildButtons(state: AppState): List<String>? {
+        if (!state.buttonsEnabled) return null
+        val labels = mutableListOf<String>()
+        if (state.button1Label.isNotBlank() && state.button1Url.isNotBlank()) labels.add(state.button1Label)
+        if (state.button2Label.isNotBlank() && state.button2Url.isNotBlank()) labels.add(state.button2Label)
+        return labels.ifEmpty { null }
+    }
+
+    private fun buildMetadata(state: AppState): com.discordrpc.gui.rpc.gateway.GatewayMetadata? {
+        if (!state.buttonsEnabled) return null
+        val urls = mutableListOf<String>()
+        if (state.button1Label.isNotBlank() && state.button1Url.isNotBlank()) urls.add(state.button1Url)
+        if (state.button2Label.isNotBlank() && state.button2Url.isNotBlank()) urls.add(state.button2Url)
+        return if (urls.isNotEmpty()) com.discordrpc.gui.rpc.gateway.GatewayMetadata(buttonUrls = urls) else null
+    }
+
     private fun buildTimestamps(state: AppState): GatewayTimestamps? {
+        if (!state.timestampsEnabled) return null
         val start = state.startTimestamp
         val end = state.endTimestamp
         return if (start != null || end != null) {
