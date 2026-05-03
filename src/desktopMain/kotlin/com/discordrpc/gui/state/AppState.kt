@@ -1,13 +1,15 @@
 package com.discordrpc.gui.state
 
 import com.discordrpc.gui.process.ProcessInfo
+import com.discordrpc.gui.rpc.RpcMode
 import com.discordrpc.gui.settings.AppRpcSettings
 
 data class AppState(
     // Connection
+    val rpcMode: RpcMode = RpcMode.LOCAL,  // default to local (arRPC) — no token needed
     val isConnected: Boolean = false,
     val isConnecting: Boolean = false,
-    val token: String = "",                // Discord user token
+    val token: String = "",                // Discord user token (Gateway mode only)
     val statusMessage: String = "Disconnected",
 
     // Process selection

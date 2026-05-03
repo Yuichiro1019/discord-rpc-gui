@@ -17,11 +17,11 @@ class GatewayRpcServiceImpl : DiscordRpcService {
     override val isConnected: Boolean
         get() = gateway?.isConnected == true
 
-    override suspend fun connect(token: String): Boolean {
+    override suspend fun connect(credential: String): Boolean {
         // Disconnect existing connection first
         disconnect()
 
-        val gw = DiscordGateway(token)
+        val gw = DiscordGateway(credential)
         gateway = gw
         return gw.connect()
     }

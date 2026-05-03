@@ -4,6 +4,8 @@ import com.discordrpc.gui.process.ProcessDetector
 import com.discordrpc.gui.process.ProcessInfo
 import com.discordrpc.gui.rpc.DiscordRpcService
 import com.discordrpc.gui.rpc.GatewayRpcServiceImpl
+import com.discordrpc.gui.rpc.LocalRpcServiceImpl
+import com.discordrpc.gui.rpc.RpcMode
 import com.discordrpc.gui.settings.AppRpcSettings
 import com.discordrpc.gui.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainViewModel(
-    private val rpcService: DiscordRpcService = GatewayRpcServiceImpl(),
     private val processDetector: ProcessDetector = ProcessDetector.create(),
     private val settingsRepository: SettingsRepository = SettingsRepository(),
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
@@ -24,8 +25,37 @@ class MainViewModel(
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state.asStateFlow()
 
+    // Active RPC service — switches based on mode
+    private var rpcService: DiscordRpcService = LocalRpcServiceImpl()
+
     fun updateField(updater: (AppState) -> AppState) {
         _state.update(updater)
+    }
+
+    // ── Mode Switching ──
+
+    fun switchMode(mode: RpcMode) {
+        coroutineScope.launch {
+            // Disconnect current service if connected
+            if (_state.value.isConnected) {
+                rpcService.disconnect()
+            }
+
+            // Create new service for the selected mode
+            rpcService = when (mode) {
+                RpcMode.LOCAL -> LocalRpcServiceImpl()
+                RpcMode.GATEWAY -> GatewayRpcServiceImpl()
+            }
+
+            _state.update {
+                it.copy(
+                    rpcMode = mode,
+                    isConnected = false,
+                    isConnecting = false,
+                    statusMessage = "Mode: ${mode.label} — Disconnected"
+                )
+            }
+        }
     }
 
     // ── Connection ──
@@ -33,19 +63,30 @@ class MainViewModel(
     fun connect() {
         coroutineScope.launch {
             val currentState = _state.value
-            if (currentState.token.isBlank()) {
-                _state.update { it.copy(statusMessage = "Token is required") }
-                return@launch
+
+            // Validate credentials based on mode
+            val credential = when (currentState.rpcMode) {
+                RpcMode.LOCAL -> {
+                    // For local/arRPC, use applicationId if set, otherwise a default
+                    currentState.applicationId.ifBlank { "1045800378228281345" } // arRPC default
+                }
+                RpcMode.GATEWAY -> {
+                    if (currentState.token.isBlank()) {
+                        _state.update { it.copy(statusMessage = "Token is required for Gateway mode") }
+                        return@launch
+                    }
+                    currentState.token
+                }
             }
 
             _state.update { it.copy(isConnecting = true, statusMessage = "Connecting...") }
             try {
-                val success = rpcService.connect(currentState.token)
+                val success = rpcService.connect(credential)
                 _state.update {
                     it.copy(
                         isConnected = success,
                         isConnecting = false,
-                        statusMessage = if (success) "Connected" else "Connection failed — check token"
+                        statusMessage = if (success) "Connected via ${currentState.rpcMode.label}" else "Connection failed"
                     )
                 }
                 if (success) updatePresence()
@@ -120,7 +161,6 @@ class MainViewModel(
                     )
                 }
             } else {
-                // New process — pre-fill activity name from desktop name
                 _state.update {
                     it.copy(
                         selectedProcess = process,
@@ -138,7 +178,6 @@ class MainViewModel(
                 }
             }
 
-            // Auto-update presence if connected
             if (_state.value.isConnected) updatePresence()
         }
     }

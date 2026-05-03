@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.discordrpc.gui.process.ProcessInfo
+import com.discordrpc.gui.rpc.RpcMode
 import com.discordrpc.gui.state.AppState
 import com.discordrpc.gui.state.MainViewModel
 import java.io.File
@@ -192,32 +193,82 @@ fun ConnectionCard(state: AppState, viewModel: MainViewModel) {
 
     GlassCard(accentColor = AppColors.primary) {
         SectionHeader("🔗", "Connection")
+
+        // ── Mode Toggle ──
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .background(AppColors.background.copy(alpha = 0.5f))
+                .border(1.dp, AppColors.cardBorder, RoundedCornerShape(10.dp)),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            RpcMode.entries.forEach { mode ->
+                val isActive = state.rpcMode == mode
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(
+                            if (isActive) Brush.horizontalGradient(
+                                listOf(AppColors.primary.copy(alpha = 0.3f), AppColors.accentGradientEnd.copy(alpha = 0.15f))
+                            )
+                            else Brush.horizontalGradient(
+                                listOf(androidx.compose.ui.graphics.Color.Transparent, androidx.compose.ui.graphics.Color.Transparent)
+                            )
+                        )
+                        .clickable(enabled = !state.isConnected) { viewModel.switchMode(mode) }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            mode.label,
+                            fontSize = 12.sp,
+                            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isActive) AppColors.primaryLight else AppColors.textMuted
+                        )
+                        Text(
+                            if (mode == RpcMode.LOCAL) "No token needed" else "Standalone",
+                            fontSize = 9.sp,
+                            color = if (isActive) AppColors.textSecondary else AppColors.textMuted
+                        )
+                    }
+                }
+            }
+        }
+
+        // ── Mode description ──
         Text(
-            "Enter your Discord token to connect via Gateway. Your token stays local.",
+            state.rpcMode.description,
             fontSize = 11.sp,
             color = AppColors.textMuted
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedTextField(
-                value = state.token,
-                onValueChange = { viewModel.updateField { s -> s.copy(token = it) } },
-                label = { Text("Discord Token") },
-                enabled = !state.isConnected && !state.isConnecting,
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(),
-                colors = glassTextFieldColors()
-            )
-            SmallPillButton(
-                text = if (showToken) "👁 Hide" else "👁 Show",
-                onClick = { showToken = !showToken }
-            )
+        // ── Token input (Gateway mode only) ──
+        if (state.rpcMode == RpcMode.GATEWAY) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = state.token,
+                    onValueChange = { viewModel.updateField { s -> s.copy(token = it) } },
+                    label = { Text("Discord Token") },
+                    enabled = !state.isConnected && !state.isConnecting,
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(),
+                    colors = glassTextFieldColors()
+                )
+                SmallPillButton(
+                    text = if (showToken) "👁 Hide" else "👁 Show",
+                    onClick = { showToken = !showToken }
+                )
+            }
         }
 
+        // ── Connect / Disconnect buttons ──
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (state.isConnected) {
                 GradientButton(
@@ -231,11 +282,15 @@ fun ConnectionCard(state: AppState, viewModel: MainViewModel) {
                     onClick = { viewModel.updatePresence() }
                 )
             } else {
+                val canConnect = when (state.rpcMode) {
+                    RpcMode.LOCAL -> !state.isConnecting
+                    RpcMode.GATEWAY -> !state.isConnecting && state.token.isNotBlank()
+                }
                 GradientButton(
                     text = if (state.isConnecting) "Connecting..." else "Connect",
                     gradient = Brush.horizontalGradient(listOf(AppColors.primary, AppColors.primaryLight)),
                     onClick = { viewModel.connect() },
-                    enabled = !state.isConnecting && state.token.isNotBlank()
+                    enabled = canConnect
                 )
             }
         }
