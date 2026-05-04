@@ -53,11 +53,22 @@ compose.desktop {
         nativeDistributions {
             targetFormats(
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb,
+                org.jetbrains.compose.desktop.application.dsl.TargetFormat.Rpm,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Exe,
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi
             )
             packageName = "DiscordRPCGUI"
             packageVersion = "1.0.0"
+
+            windows {
+                iconFile.set(project.file("src/desktopMain/resources/logo.ico"))
+            }
+            linux {
+                iconFile.set(project.file("src/desktopMain/resources/logo.png"))
+            }
+            macOS {
+                iconFile.set(project.file("src/desktopMain/resources/logo.png"))
+            }
         }
     }
 }

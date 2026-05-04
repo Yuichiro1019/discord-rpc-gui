@@ -27,14 +27,24 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: Install Packaging Dependencies
-      run: sudo apt-get update && sudo apt-get install -y fakeroot dpkg-dev
+      run: sudo apt-get update && sudo apt-get install -y fakeroot dpkg-dev rpm
 
     - name: Build and Package DEB (Release)
       run: ./gradlew packageReleaseDeb
+
+    - name: Build and Package RPM (Release)
+      run: ./gradlew packageReleaseRpm
 
     - name: Upload DEB Artifact
       uses: actions/upload-artifact@v4
       with:
         name: discord-rpc-gui-linux-deb
         path: build/**/*.deb
+        retention-days: 7
+
+    - name: Upload RPM Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: discord-rpc-gui-linux-rpm
+        path: build/**/*.rpm
         retention-days: 7
