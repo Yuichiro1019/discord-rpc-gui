@@ -27,6 +27,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.foundation.window.WindowDraggableArea
+import androidx.compose.ui.res.painterResource
 
 // ── Plush Modern Components ──
 
@@ -118,11 +119,14 @@ fun WindowScope.MainScreen(viewModel: MainViewModel, onClose: () -> Unit) {
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(AppTheme.colors.secondaryContainer),
+                                .clip(RoundedCornerShape(16.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("🎮", fontSize = 28.sp)
+                            Image(
+                                painter = painterResource("logo.png"),
+                                contentDescription = "App Logo",
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                         Column {
                             Text(

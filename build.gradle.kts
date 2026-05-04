@@ -9,7 +9,7 @@ group = "com.discordrpc.gui"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(21)
 
     jvm("desktop")
 
@@ -29,6 +29,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
                 implementation("io.ktor:ktor-client-websockets:$ktorVersion")
+                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
             }
         }
     }
@@ -37,6 +39,10 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "com.discordrpc.gui.MainKt"
+
+        buildTypes.release.proguard {
+            isEnabled.set(false)
+        }
 
         jvmArgs += listOf(
             "-Dawt.toolkit.name=GTK",

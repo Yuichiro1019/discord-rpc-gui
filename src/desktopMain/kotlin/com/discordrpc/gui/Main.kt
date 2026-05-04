@@ -13,13 +13,16 @@ import com.discordrpc.gui.state.MainViewModel
 import com.discordrpc.gui.ui.AppTheme
 import com.discordrpc.gui.ui.MainScreen
 
+import androidx.compose.ui.res.painterResource
+
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Discord RPC GUI",
         state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),
         transparent = true,
-        undecorated = true
+        undecorated = true,
+        icon = painterResource("logo.png")
     ) {
         window.minimumSize = java.awt.Dimension(1000, 700)
         
