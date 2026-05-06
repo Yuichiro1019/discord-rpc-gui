@@ -21,11 +21,25 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: gradle
+
+    - name: Verify Gradle Plugin Repository Access
+      shell: pwsh
+      run: |
+        $pluginMarker = "org.jetbrains.kotlin.multiplatform.gradle.plugin-2.3.20.pom"
+        $urls = @(
+          "https://plugins.gradle.org/m2/org/jetbrains/kotlin/multiplatform/org.jetbrains.kotlin.multiplatform.gradle.plugin/2.3.20/$pluginMarker",
+          "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/multiplatform/org.jetbrains.kotlin.multiplatform.gradle.plugin/2.3.20/$pluginMarker"
+        )
+
+        foreach ($url in $urls) {
+          Write-Host "Checking $url"
+          $response = Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 5
+          Write-Host "Status: $($response.StatusCode), bytes: $($response.RawContentLength)"
+        }
 
     - name: Build Windows Installers (Release)
       shell: bash
-      run: bash ./gradlew packageReleaseMsi packageReleaseExe --no-daemon --stacktrace
+      run: bash ./gradlew packageReleaseMsi packageReleaseExe --no-daemon --stacktrace --refresh-dependencies
 
     - name: Debug - Find all EXE and MSI files
       if: always()
