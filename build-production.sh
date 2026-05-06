@@ -6,8 +6,9 @@ set -e
 # Note: JetBrains Compose packaging requires a full JDK (which includes 'jpackage'), 
 # not just a JRE. If you get a 'jpackage missing' error locally, you will need to
 # point JAVA_HOME to a standard JDK (like Temurin or OpenJDK 17/21).
-# We are currently using the same JBR as run.sh, but JBR often omits jpackage.
-export JAVA_HOME=/home/eevee/.local/share/JetBrains/Toolbox/apps/intellij-idea/jbr
+# We discovered a full JDK at ~/.jdks/openjdk-26 which has jpackage. 
+# Using this instead of JBR to fix the 'jpackage missing' error.
+export JAVA_HOME=/home/eevee/.jdks/openjdk-26
 export PATH=$JAVA_HOME/bin:$PATH
 
 echo "Compiling and packaging Discord RPC GUI for Production..."
