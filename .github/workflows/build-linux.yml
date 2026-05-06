@@ -29,6 +29,17 @@ jobs:
     - name: Install Packaging Dependencies
       run: sudo apt-get update && sudo apt-get install -y fakeroot dpkg-dev rpm
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies and compile sidecar
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pypresence
+        pyinstaller --onefile src/desktopMain/resources/pypresence_sidecar.py --distpath src/desktopMain/resources/bin/linux --name pypresence_sidecar
+
     - name: Build and Package DEB (Release)
       run: ./gradlew packageReleaseDeb
 

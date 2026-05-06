@@ -25,11 +25,15 @@ interface DiscordRpcService {
 /** Available connection modes */
 enum class RpcMode(val label: String, val description: String) {
     LOCAL(
-        "Local (arRPC)",
-        "Connects to local arRPC/Discord WebSocket — no token needed"
+        "arRPC",
+        "Connects to local arRPC/Discord WebSocket — no token needed, requires Vesktop"
     ),
     GATEWAY(
-        "Gateway (Token)",
+        "Token",
         "Connects directly to Discord Gateway — needs user token, works standalone"
+    ),
+    NATIVE_IPC(
+        "native app",
+        "Connects to Discord, works with official client"
     )
 }

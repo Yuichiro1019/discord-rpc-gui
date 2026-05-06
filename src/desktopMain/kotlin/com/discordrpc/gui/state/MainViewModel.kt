@@ -5,6 +5,7 @@ import com.discordrpc.gui.process.ProcessInfo
 import com.discordrpc.gui.rpc.DiscordRpcService
 import com.discordrpc.gui.rpc.GatewayRpcServiceImpl
 import com.discordrpc.gui.rpc.LocalRpcServiceImpl
+import com.discordrpc.gui.rpc.NativeIpcRpcServiceImpl
 import com.discordrpc.gui.rpc.RpcMode
 import com.discordrpc.gui.settings.AppRpcSettings
 import com.discordrpc.gui.settings.SettingsRepository
@@ -62,6 +63,7 @@ class MainViewModel(
             rpcService = when (mode) {
                 RpcMode.LOCAL -> LocalRpcServiceImpl()
                 RpcMode.GATEWAY -> GatewayRpcServiceImpl()
+                RpcMode.NATIVE_IPC -> NativeIpcRpcServiceImpl()
             }
 
             _state.update {
@@ -93,6 +95,10 @@ class MainViewModel(
                         return@launch
                     }
                     currentState.token
+                }
+                RpcMode.NATIVE_IPC -> {
+                    // For Native IPC, use applicationId as the Discord Client ID
+                    currentState.applicationId.ifBlank { "835460649798467584" }
                 }
             }
 
