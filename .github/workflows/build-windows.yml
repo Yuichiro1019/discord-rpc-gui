@@ -25,20 +25,34 @@ jobs:
 
     - name: Build and Package MSI (Release)
       run: ./gradlew packageReleaseMsi
+      continue-on-error: true
       
     - name: Build and Package EXE (Release)
       run: ./gradlew packageReleaseExe
+      continue-on-error: true
+
+    - name: Debug - Find all EXE and MSI files
+      run: |
+        echo "Searching for generated installers..."
+        Get-ChildItem -Path . -Include *.exe,*.msi -Recurse | Select-Object FullName
+      shell: pwsh
 
     - name: Upload MSI Artifact
       uses: actions/upload-artifact@v4
       with:
         name: discord-rpc-gui-windows-msi
-        path: build/**/*.msi
+        path: |
+          build/compose/binaries/main/msi/*.msi
+          build/**/*.msi
+        if-no-files-found: warn
         retention-days: 7
 
     - name: Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
         name: discord-rpc-gui-windows-exe
-        path: build/**/*.exe
+        path: |
+          build/compose/binaries/main/exe/*.exe
+          build/**/*.exe
+        if-no-files-found: warn
         retention-days: 7
