@@ -73,7 +73,14 @@ fun ConnectionCard(state: AppState, viewModel: MainViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(if (mode == RpcMode.LOCAL) "♙" else "🔑", color = if (isActive) AppTheme.colors.primary else AppTheme.colors.textSecondary)
+                        Text(
+                            when (mode) {
+                                RpcMode.LOCAL -> "♙"
+                                RpcMode.GATEWAY -> "🔑"
+                                RpcMode.NATIVE_IPC -> "🔌"
+                            },
+                            color = if (isActive) AppTheme.colors.primary else AppTheme.colors.textSecondary
+                        )
                         Text(
                             mode.label,
                             fontSize = 13.sp,
@@ -138,6 +145,7 @@ fun ConnectionCard(state: AppState, viewModel: MainViewModel) {
             val canConnect = when (state.rpcMode) {
                 RpcMode.LOCAL -> !state.isConnecting
                 RpcMode.GATEWAY -> !state.isConnecting && state.token.isNotBlank()
+                RpcMode.NATIVE_IPC -> !state.isConnecting
             }
             PlushButton(
                 text = if (state.isConnecting) "Connecting..." else "⏻ Connect",

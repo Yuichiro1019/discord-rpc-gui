@@ -16,15 +16,20 @@ import com.discordrpc.gui.ui.MainScreen
 import androidx.compose.ui.res.painterResource
 
 fun main() = application {
+    val screenSize = java.awt.Toolkit.getDefaultToolkit().screenSize
+    val ratio = if (screenSize.width <= 1920) 0.8 else 0.6
+    val w = (screenSize.width * ratio).toInt()
+    val h = (screenSize.height * ratio).toInt()
+    
     Window(
         onCloseRequest = ::exitApplication,
         title = "Discord RPC GUI",
-        state = rememberWindowState(size = DpSize(1200.dp, 800.dp)),
+        state = rememberWindowState(size = DpSize(w.dp, h.dp)),
         transparent = true,
         undecorated = true,
         icon = painterResource("logo.png")
     ) {
-        window.minimumSize = java.awt.Dimension(1000, 700)
+        window.minimumSize = java.awt.Dimension(w, h)
         
         val viewModel = remember { MainViewModel() }
         val state by viewModel.state.collectAsState()

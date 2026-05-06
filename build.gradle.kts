@@ -58,7 +58,7 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi
             )
             packageName = "DiscordRPCGUI"
-            packageVersion = "1.0.0"
+            packageVersion = "1.1.0"
 
             windows {
                 iconFile.set(project.file("src/desktopMain/resources/logo.ico"))
