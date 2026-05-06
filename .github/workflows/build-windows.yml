@@ -23,18 +23,20 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Build and Package MSI (Release)
-      run: ./gradlew packageReleaseMsi
-      continue-on-error: true
-      
-    - name: Build and Package EXE (Release)
-      run: ./gradlew packageReleaseExe
-      continue-on-error: true
+    - name: Build Windows Installers (Release)
+      shell: bash
+      run: bash ./gradlew packageReleaseMsi packageReleaseExe --no-daemon --stacktrace
 
     - name: Debug - Find all EXE and MSI files
+      if: always()
       run: |
         echo "Searching for generated installers..."
-        Get-ChildItem -Path . -Include *.exe,*.msi -Recurse | Select-Object FullName
+        $files = Get-ChildItem -Path . -Include *.exe,*.msi -Recurse
+        if ($files) {
+          $files | Select-Object FullName, Length
+        } else {
+          Write-Host "No EXE or MSI files were generated."
+        }
       shell: pwsh
 
     - name: Upload MSI Artifact
@@ -42,9 +44,9 @@ jobs:
       with:
         name: discord-rpc-gui-windows-msi
         path: |
+          build/compose/binaries/main-release/msi/*.msi
           build/compose/binaries/main/msi/*.msi
-          build/**/*.msi
-        if-no-files-found: warn
+        if-no-files-found: error
         retention-days: 7
 
     - name: Upload EXE Artifact
@@ -52,7 +54,7 @@ jobs:
       with:
         name: discord-rpc-gui-windows-exe
         path: |
+          build/compose/binaries/main-release/exe/*.exe
           build/compose/binaries/main/exe/*.exe
-          build/**/*.exe
-        if-no-files-found: warn
+        if-no-files-found: error
         retention-days: 7
